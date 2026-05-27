@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-export default function TradingBot() {
+export default function App() {
 
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] =
+    useState(false);
 
-  const [profit, setProfit] = useState(0);
+  const [profit, setProfit] =
+    useState(0);
 
-  const [wins, setWins] = useState(0);
+  const [wins, setWins] =
+    useState(0);
 
-  const [losses, setLosses] = useState(0);
+  const [losses, setLosses] =
+    useState(0);
 
   const [lastTrade, setLastTrade] =
     useState("NONE");
+
+  const intervalRef = useRef(null);
 
   function executeTrade(
     signal,
@@ -36,57 +42,63 @@ export default function TradingBot() {
       result = "WIN";
     }
 
-    let currentProfit = profit;
+    setProfit(prev => {
+
+      if (result === "WIN") {
+        return prev + amount * 0.92;
+      }
+
+      return prev - amount;
+    });
 
     if (result === "WIN") {
-
-      currentProfit += amount * 0.92;
-
       setWins(prev => prev + 1);
-
     } else {
-
-      currentProfit -= amount;
-
       setLosses(prev => prev + 1);
     }
-
-    setProfit(currentProfit);
 
     setLastTrade(result);
   }
 
   function startBot() {
 
+    if (running) return;
+
     setRunning(true);
 
-    const signal =
-      Math.random() > 0.5
-        ? "BUY"
-        : "SELL";
+    intervalRef.current =
+      setInterval(() => {
 
-    const entryPrice =
-      1.08420;
+        const signal =
+          Math.random() > 0.5
+            ? "BUY"
+            : "SELL";
 
-    setTimeout(() => {
+        const entryPrice =
+          1.08420;
 
-      const closePrice =
-        entryPrice +
-        (Math.random() - 0.5) *
-        0.002;
+        const closePrice =
+          entryPrice +
+          (Math.random() - 0.5)
+          * 0.002;
 
-      executeTrade(
-        signal,
-        entryPrice,
-        closePrice,
-        10
-      );
+        executeTrade(
+          signal,
+          entryPrice,
+          closePrice,
+          1
+        );
 
-    }, 5000);
+      }, 15000);
   }
 
   function stopBot() {
+
     setRunning(false);
+
+    clearInterval(
+      intervalRef.current
+    );
   }
 
   return (
@@ -102,7 +114,7 @@ export default function TradingBot() {
     >
 
       <h1>
-        OTC Trading Bot
+        Trading Bot
       </h1>
 
       <h2>
@@ -168,4 +180,4 @@ export default function TradingBot() {
 
     </div>
   );
-  }
+}
