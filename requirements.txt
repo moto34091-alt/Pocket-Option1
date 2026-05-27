@@ -1,10 +1,10 @@
 fastapi
-uvicorn
-python-socketio
-python-binance
-websockets
+uvicorn[standard]
 jinja2
 requests
 pandas
 numpy
 python-dotenv
+websockets
+python-socketio
+python-binance
