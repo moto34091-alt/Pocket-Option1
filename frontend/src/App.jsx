@@ -60,28 +60,27 @@ export default function App() {
     }
   }
 
+  /*
+    Trading Engine
+  */
+
   function executeTrade(signal) {
 
     let result;
 
     /*
-      Simulation améliorée
+      IA simulée stable
     */
 
-    if (signal === "BUY") {
+    const winChance =
+      signal === "BUY"
+        ? 0.78
+        : 0.74;
 
-      result =
-        Math.random() < 0.65
-          ? "WIN"
-          : "LOSS";
-
-    } else {
-
-      result =
-        Math.random() < 0.60
-          ? "WIN"
-          : "LOSS";
-    }
+    result =
+      Math.random() < winChance
+        ? "WIN"
+        : "LOSS";
 
     setProfit(prev => {
 
@@ -107,7 +106,14 @@ export default function App() {
 
       {
         signal,
+
         result,
+
+        amount:
+          result === "WIN"
+            ? "+0.92"
+            : "-1.00",
+
         time:
           new Date()
           .toLocaleTimeString()
@@ -118,6 +124,10 @@ export default function App() {
     ]);
   }
 
+  /*
+    Start Bot
+  */
+
   function startBot() {
 
     if (running) return;
@@ -125,7 +135,7 @@ export default function App() {
     setRunning(true);
 
     /*
-      Timer 15 sec
+      Countdown
     */
 
     timerRef.current =
@@ -143,7 +153,7 @@ export default function App() {
       }, 1000);
 
     /*
-      Trading loop
+      Trading Loop
     */
 
     intervalRef.current =
@@ -160,6 +170,10 @@ export default function App() {
 
       }, 15000);
   }
+
+  /*
+    Stop Bot
+  */
 
   function stopBot() {
 
@@ -195,7 +209,11 @@ export default function App() {
         Trading Bot
       </h1>
 
+      {/* TradingView Chart */}
+
       <Chart />
+
+      {/* Dashboard */}
 
       <div
         style={{
@@ -234,7 +252,9 @@ export default function App() {
               color:
                 currentSignal === "BUY"
                   ? "#22c55e"
-                  : "#ef4444"
+                  : currentSignal === "SELL"
+                  ? "#ef4444"
+                  : "#facc15"
             }}
           >
             {currentSignal}
@@ -295,6 +315,8 @@ export default function App() {
 
       </div>
 
+      {/* Buttons */}
+
       <div
         style={{
           display: "flex",
@@ -311,7 +333,8 @@ export default function App() {
             color: "white",
             border: "none",
             borderRadius: 10,
-            fontSize: 18
+            fontSize: 18,
+            fontWeight: "bold"
           }}
         >
           START
@@ -326,13 +349,16 @@ export default function App() {
             color: "white",
             border: "none",
             borderRadius: 10,
-            fontSize: 18
+            fontSize: 18,
+            fontWeight: "bold"
           }}
         >
           STOP
         </button>
 
       </div>
+
+      {/* History */}
 
       <div
         style={{
@@ -356,13 +382,18 @@ export default function App() {
                 style={{
                   background:
                     "#111827",
-                  padding: 10,
+
+                  padding: 15,
+
                   marginTop: 10,
+
                   borderRadius: 10
                 }}
               >
 
                 <p>
+                  Time:
+                  {" "}
                   {trade.time}
                 </p>
 
@@ -370,6 +401,12 @@ export default function App() {
                   Signal:
                   {" "}
                   {trade.signal}
+                </p>
+
+                <p>
+                  PNL:
+                  {" "}
+                  {trade.amount}
                 </p>
 
                 <p
