@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-socketio
+python-binance
+websockets
+jinja2
+requests
+pandas
+numpy
+python-dotenv
