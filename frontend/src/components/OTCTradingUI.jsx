@@ -1,4 +1,48 @@
+import { useState } from "react";
+
 export default function OTCTradingUI() {
+
+  const [market, setMarket] =
+    useState("EURUSD OTC");
+
+  const [amount, setAmount] =
+    useState(5);
+
+  const [running, setRunning] =
+    useState(false);
+
+  const [profit, setProfit] =
+    useState(0);
+
+  const [signal, setSignal] =
+    useState("WAIT");
+
+  function runBot() {
+
+    setRunning(true);
+
+    setSignal("BUY");
+
+    setInterval(() => {
+
+      const win =
+        Math.random() < 0.75;
+
+      if (win) {
+
+        setProfit(prev =>
+          prev + amount * 0.92
+        );
+
+      } else {
+
+        setProfit(prev =>
+          prev - amount
+        );
+      }
+
+    }, 15000);
+  }
 
   return (
 
@@ -8,71 +52,104 @@ export default function OTCTradingUI() {
 
         {/* Header */}
 
-        <div className="flex justify-between items-center p-4 border-b border-gray-800">
+        <div className="p-5 border-b border-gray-800">
 
-          <button className="text-red-500 text-sm">
-            ✕ Close
-          </button>
+          <h1 className="text-3xl font-black">
 
-          <div className="flex gap-3 text-gray-400">
+            OTC AI BOT
 
-            <span>⌄</span>
+          </h1>
 
-            <span>⋯</span>
+          <p className="text-gray-400 mt-1">
+
+            Automatic OTC Trading
+
+          </p>
+
+        </div>
+
+        {/* Market */}
+
+        <div className="p-5">
+
+          <p className="text-gray-400 mb-2">
+
+            OTC Market
+
+          </p>
+
+          <select
+            value={market}
+            onChange={e =>
+              setMarket(
+                e.target.value
+              )
+            }
+            className="w-full bg-[#111827] p-4 rounded-2xl border border-gray-700"
+          >
+
+            <option>
+              EURUSD OTC
+            </option>
+
+            <option>
+              GBPUSD OTC
+            </option>
+
+            <option>
+              USDJPY OTC
+            </option>
+
+            <option>
+              BTCUSD OTC
+            </option>
+
+          </select>
+
+        </div>
+
+        {/* Payout */}
+
+        <div className="px-5">
+
+          <div className="bg-[#111827] rounded-2xl p-4 border border-gray-700 flex justify-between">
+
+            <span>
+              Payout
+            </span>
+
+            <span className="text-green-400 font-bold">
+
+              92%
+
+            </span>
 
           </div>
 
         </div>
 
-        {/* Hero */}
+        {/* Amount */}
 
         <div className="p-5">
 
-          <h1 className="text-5xl font-black leading-tight">
+          <p className="text-gray-400 mb-2">
 
-            Trade AI is
-            <br />
-
-            analyzing
-            <br />
-
-            <span className="text-red-500">
-              the market...
-            </span>
-
-          </h1>
-
-          <p className="text-gray-400 mt-4">
-
-            Optimizing the next trade
+            Amount Per Trade
 
           </p>
 
-          {/* AI Status */}
-
-          <div className="mt-6 bg-[#111827] border border-gray-700 rounded-2xl p-4 flex items-center gap-3">
-
-            <div className="w-5 h-5 rounded-full bg-green-500 animate-pulse" />
-
-            <div>
-
-              <h3 className="font-bold">
-                Trade AI Started
-              </h3>
-
-              <p className="text-gray-400 text-sm">
-                Connected to market
-              </p>
-
-            </div>
-
-          </div>
-
-          <p className="text-gray-500 text-sm mt-4">
-
-            Fetching OTC market data...
-
-          </p>
+          <input
+            type="number"
+            value={amount}
+            onChange={e =>
+              setAmount(
+                Number(
+                  e.target.value
+                )
+              )
+            }
+            className="w-full bg-[#111827] p-4 rounded-2xl border border-gray-700"
+          />
 
         </div>
 
@@ -88,8 +165,20 @@ export default function OTCTradingUI() {
                 Status
               </span>
 
-              <span className="text-green-400 font-bold">
-                RUNNING
+              <span
+                className={
+                  running
+                    ? "text-green-400 font-bold"
+                    : "text-red-400 font-bold"
+                }
+              >
+
+                {
+                  running
+                    ? "RUNNING"
+                    : "OFF"
+                }
+
               </span>
 
             </div>
@@ -101,19 +190,9 @@ export default function OTCTradingUI() {
               </span>
 
               <span className="text-green-400 font-bold">
-                BUY
-              </span>
 
-            </div>
+                {signal}
 
-            <div className="flex justify-between mb-4">
-
-              <span className="text-gray-400">
-                Profit
-              </span>
-
-              <span className="text-green-400 font-bold">
-                +$24.82
               </span>
 
             </div>
@@ -121,11 +200,22 @@ export default function OTCTradingUI() {
             <div className="flex justify-between">
 
               <span className="text-gray-400">
-                Next Trade
+                Profit
               </span>
 
-              <span className="font-bold">
-                12s
+              <span
+                className={
+                  profit >= 0
+                    ? "text-green-400 font-bold"
+                    : "text-red-400 font-bold"
+                }
+              >
+
+                $
+                {
+                  profit.toFixed(2)
+                }
+
               </span>
 
             </div>
@@ -134,19 +224,22 @@ export default function OTCTradingUI() {
 
         </div>
 
-        {/* Button */}
+        {/* Run Button */}
 
         <div className="p-5">
 
-          <button className="w-full bg-gradient-to-r from-gray-300 to-gray-500 text-black py-4 rounded-2xl text-lg font-black shadow-lg active:scale-95 transition">
+          <button
+            onClick={runBot}
+            className="w-full bg-gradient-to-r from-green-400 to-green-600 text-black py-4 rounded-2xl text-lg font-black shadow-lg active:scale-95 transition"
+          >
 
-            ANALYZING...
+            RUN BOT
 
           </button>
 
         </div>
 
-        {/* Bottom Navigation */}
+        {/* Bottom */}
 
         <div className="grid grid-cols-4 border-t border-gray-800 py-4 text-center text-xs text-gray-400">
 
@@ -168,7 +261,7 @@ export default function OTCTradingUI() {
 
           <div className="flex flex-col items-center gap-1">
 
-            <span>👥</span>
+            <span>⚡</span>
 
             <span>Signals</span>
 
@@ -190,4 +283,4 @@ export default function OTCTradingUI() {
 
   );
 
-}
+          }
