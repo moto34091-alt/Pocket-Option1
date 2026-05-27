@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 
+import Chart from "./Chart";
+
 export default function App() {
 
   const [running, setRunning] =
@@ -193,11 +195,14 @@ export default function App() {
         Trading Bot
       </h1>
 
+      <Chart />
+
       <div
         style={{
           background: "#111827",
           padding: 20,
           borderRadius: 15,
+          marginTop: 20,
           marginBottom: 20
         }}
       >
