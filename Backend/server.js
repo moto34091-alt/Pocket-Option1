@@ -6,6 +6,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -17,13 +18,17 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-const signalRoute = require("./routes/signals");
-
-app.use("/signals", signalRoute);
-
 app.get("/", (req, res) => {
   res.json({
-    status: "OTC Trade AI Running"
+    status: "OTC Trading AI Running"
+  });
+});
+
+app.get("/signals/eurusd", (req, res) => {
+  res.json({
+    pair: "EUR/USD OTC",
+    signal: "BUY",
+    confidence: 87
   });
 });
 
@@ -35,8 +40,8 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on ${PORT}`);
 });
