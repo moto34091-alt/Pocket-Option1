@@ -1,165 +1,80 @@
-import { useState, useRef } from "react";
+return (
 
-export default function App() {
+  <div
+    style={{
+      background: "#0f172a",
+      minHeight: "100vh",
+      color: "white",
+      padding: 20,
+      fontFamily: "Arial"
+    }}
+  >
 
-  const [running, setRunning] =
-    useState(false);
-
-  const [profit, setProfit] =
-    useState(0);
-
-  const [wins, setWins] =
-    useState(0);
-
-  const [losses, setLosses] =
-    useState(0);
-
-  const [lastTrade, setLastTrade] =
-    useState("NONE");
-
-  const [currentSignal, setCurrentSignal] =
-    useState("WAIT");
-
-  const intervalRef = useRef(null);
-
-  async function getSignal() {
-
-    try {
-
-      const response =
-        await fetch(
-          "https://ai-trading-bot-production-b1fe.up.railway.app/signals/eurusd"
-        );
-
-      const data =
-        await response.json();
-
-      setCurrentSignal(
-        data.signal
-      );
-
-      return data.signal;
-
-    } catch (err) {
-
-      console.log(err);
-
-      return "WAIT";
-    }
-  }
-
-  function executeTrade(signal) {
-
-    let result;
-
-    /*
-      Simulation améliorée :
-      BUY = 65% win
-      SELL = 60% win
-    */
-
-    if (signal === "BUY") {
-
-      result =
-        Math.random() < 0.65
-          ? "WIN"
-          : "LOSS";
-
-    } else {
-
-      result =
-        Math.random() < 0.60
-          ? "WIN"
-          : "LOSS";
-    }
-
-    setProfit(prev => {
-
-      if (result === "WIN") {
-        return prev + 0.92;
-      }
-
-      return prev - 1;
-    });
-
-    if (result === "WIN") {
-
-      setWins(prev => prev + 1);
-
-    } else {
-
-      setLosses(prev => prev + 1);
-    }
-
-    setLastTrade(result);
-  }
-
-  function startBot() {
-
-    if (running) return;
-
-    setRunning(true);
-
-    intervalRef.current =
-      setInterval(async () => {
-
-        const signal =
-          await getSignal();
-
-        if (
-          signal === "WAIT"
-        ) return;
-
-        executeTrade(signal);
-
-      }, 15000);
-  }
-
-  function stopBot() {
-
-    setRunning(false);
-
-    clearInterval(
-      intervalRef.current
-    );
-  }
-
-  return (
+    <h1
+      style={{
+        fontSize: 32,
+        marginBottom: 20
+      }}
+    >
+      OTC Trading Bot
+    </h1>
 
     <div
       style={{
-        background: "#0f172a",
-        minHeight: "100vh",
-        color: "white",
-        padding: 30,
-        fontFamily: "Arial"
+        background: "#111827",
+        padding: 20,
+        borderRadius: 15,
+        marginBottom: 20
       }}
     >
-
-      <h1>
-        OTC Trading Bot
-      </h1>
 
       <h2>
         Status:
         {" "}
-        {running
-          ? "RUNNING"
-          : "OFF"}
+        <span
+          style={{
+            color:
+              running
+                ? "#22c55e"
+                : "#ef4444"
+          }}
+        >
+          {running
+            ? "RUNNING"
+            : "OFF"}
+        </span>
       </h2>
 
       <h2>
         Signal:
         {" "}
-        {currentSignal}
+        <span
+          style={{
+            color:
+              currentSignal === "BUY"
+                ? "#22c55e"
+                : "#ef4444"
+          }}
+        >
+          {currentSignal}
+        </span>
       </h2>
 
       <h2>
         Profit:
         {" "}
-        $
-        {Number(profit)
-          .toFixed(2)}
+        <span
+          style={{
+            color:
+              profit >= 0
+                ? "#22c55e"
+                : "#ef4444"
+          }}
+        >
+          $
+          {Number(profit)
+            .toFixed(2)}
+        </span>
       </h2>
 
       <h3>
@@ -177,14 +92,32 @@ export default function App() {
       <h3>
         Last Trade:
         {" "}
-        {lastTrade}
+        <span
+          style={{
+            color:
+              lastTrade === "WIN"
+                ? "#22c55e"
+                : "#ef4444"
+          }}
+        >
+          {lastTrade}
+        </span>
       </h3>
+
+    </div>
+
+    <div
+      style={{
+        display: "flex",
+        gap: 10
+      }}
+    >
 
       <button
         onClick={startBot}
         style={{
+          flex: 1,
           padding: 15,
-          marginRight: 10,
           background: "#16a34a",
           color: "white",
           border: "none",
@@ -198,6 +131,7 @@ export default function App() {
       <button
         onClick={stopBot}
         style={{
+          flex: 1,
           padding: 15,
           background: "#dc2626",
           color: "white",
@@ -210,5 +144,6 @@ export default function App() {
       </button>
 
     </div>
-  );
-          }
+
+  </div>
+);
