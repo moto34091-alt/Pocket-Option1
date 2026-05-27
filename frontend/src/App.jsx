@@ -1,149 +1,390 @@
-return (
+import { useState, useRef } from "react";
 
-  <div
-    style={{
-      background: "#0f172a",
-      minHeight: "100vh",
-      color: "white",
-      padding: 20,
-      fontFamily: "Arial"
-    }}
-  >
+export default function App() {
 
-    <h1
-      style={{
-        fontSize: 32,
-        marginBottom: 20
-      }}
-    >
-      OTC Trading Bot
-    </h1>
+  const [running, setRunning] =
+    useState(false);
+
+  const [profit, setProfit] =
+    useState(0);
+
+  const [wins, setWins] =
+    useState(0);
+
+  const [losses, setLosses] =
+    useState(0);
+
+  const [lastTrade, setLastTrade] =
+    useState("NONE");
+
+  const [currentSignal, setCurrentSignal] =
+    useState("WAIT");
+
+  const [history, setHistory] =
+    useState([]);
+
+  const [timer, setTimer] =
+    useState(15);
+
+  const intervalRef =
+    useRef(null);
+
+  const timerRef =
+    useRef(null);
+
+  async function getSignal() {
+
+    try {
+
+      const response =
+        await fetch(
+          "https://ai-trading-bot-production-b1fe.up.railway.app/signals/eurusd"
+        );
+
+      const data =
+        await response.json();
+
+      setCurrentSignal(
+        data.signal
+      );
+
+      return data.signal;
+
+    } catch (err) {
+
+      console.log(err);
+
+      return "WAIT";
+    }
+  }
+
+  function executeTrade(signal) {
+
+    let result;
+
+    /*
+      Simulation améliorée
+    */
+
+    if (signal === "BUY") {
+
+      result =
+        Math.random() < 0.65
+          ? "WIN"
+          : "LOSS";
+
+    } else {
+
+      result =
+        Math.random() < 0.60
+          ? "WIN"
+          : "LOSS";
+    }
+
+    setProfit(prev => {
+
+      if (result === "WIN") {
+        return prev + 0.92;
+      }
+
+      return prev - 1;
+    });
+
+    if (result === "WIN") {
+
+      setWins(prev => prev + 1);
+
+    } else {
+
+      setLosses(prev => prev + 1);
+    }
+
+    setLastTrade(result);
+
+    setHistory(prev => [
+
+      {
+        signal,
+        result,
+        time:
+          new Date()
+          .toLocaleTimeString()
+      },
+
+      ...prev
+
+    ]);
+  }
+
+  function startBot() {
+
+    if (running) return;
+
+    setRunning(true);
+
+    /*
+      Timer 15 sec
+    */
+
+    timerRef.current =
+      setInterval(() => {
+
+        setTimer(prev => {
+
+          if (prev <= 1) {
+            return 15;
+          }
+
+          return prev - 1;
+        });
+
+      }, 1000);
+
+    /*
+      Trading loop
+    */
+
+    intervalRef.current =
+      setInterval(async () => {
+
+        const signal =
+          await getSignal();
+
+        if (
+          signal === "WAIT"
+        ) return;
+
+        executeTrade(signal);
+
+      }, 15000);
+  }
+
+  function stopBot() {
+
+    setRunning(false);
+
+    clearInterval(
+      intervalRef.current
+    );
+
+    clearInterval(
+      timerRef.current
+    );
+  }
+
+  return (
 
     <div
       style={{
-        background: "#111827",
+        background: "#0f172a",
+        minHeight: "100vh",
+        color: "white",
         padding: 20,
-        borderRadius: 15,
-        marginBottom: 20
+        fontFamily: "Arial"
       }}
     >
 
-      <h2>
-        Status:
-        {" "}
-        <span
-          style={{
-            color:
+      <h1
+        style={{
+          fontSize: 32,
+          marginBottom: 20
+        }}
+      >
+        Trading Bot
+      </h1>
+
+      <div
+        style={{
+          background: "#111827",
+          padding: 20,
+          borderRadius: 15,
+          marginBottom: 20
+        }}
+      >
+
+        <h2>
+          Status:
+          {" "}
+          <span
+            style={{
+              color:
+                running
+                  ? "#22c55e"
+                  : "#ef4444"
+            }}
+          >
+            {
               running
-                ? "#22c55e"
-                : "#ef4444"
-          }}
-        >
-          {running
-            ? "RUNNING"
-            : "OFF"}
-        </span>
-      </h2>
+                ? "RUNNING"
+                : "OFF"
+            }
+          </span>
+        </h2>
 
-      <h2>
-        Signal:
-        {" "}
-        <span
-          style={{
-            color:
-              currentSignal === "BUY"
-                ? "#22c55e"
-                : "#ef4444"
-          }}
-        >
-          {currentSignal}
-        </span>
-      </h2>
+        <h2>
+          Signal:
+          {" "}
+          <span
+            style={{
+              color:
+                currentSignal === "BUY"
+                  ? "#22c55e"
+                  : "#ef4444"
+            }}
+          >
+            {currentSignal}
+          </span>
+        </h2>
 
-      <h2>
-        Profit:
-        {" "}
-        <span
-          style={{
-            color:
-              profit >= 0
-                ? "#22c55e"
-                : "#ef4444"
-          }}
-        >
-          $
-          {Number(profit)
-            .toFixed(2)}
-        </span>
-      </h2>
+        <h2>
+          Profit:
+          {" "}
+          <span
+            style={{
+              color:
+                profit >= 0
+                  ? "#22c55e"
+                  : "#ef4444"
+            }}
+          >
+            $
+            {
+              Number(profit)
+              .toFixed(2)
+            }
+          </span>
+        </h2>
 
-      <h3>
-        Wins:
-        {" "}
-        {wins}
-      </h3>
+        <h3>
+          Wins:
+          {" "}
+          {wins}
+        </h3>
 
-      <h3>
-        Losses:
-        {" "}
-        {losses}
-      </h3>
+        <h3>
+          Losses:
+          {" "}
+          {losses}
+        </h3>
 
-      <h3>
-        Last Trade:
-        {" "}
-        <span
-          style={{
-            color:
-              lastTrade === "WIN"
-                ? "#22c55e"
-                : "#ef4444"
-          }}
-        >
-          {lastTrade}
-        </span>
-      </h3>
+        <h3>
+          Last Trade:
+          {" "}
+          <span
+            style={{
+              color:
+                lastTrade === "WIN"
+                  ? "#22c55e"
+                  : "#ef4444"
+            }}
+          >
+            {lastTrade}
+          </span>
+        </h3>
 
-    </div>
+        <h3>
+          Next Trade In:
+          {" "}
+          {timer}s
+        </h3>
 
-    <div
-      style={{
-        display: "flex",
-        gap: 10
-      }}
-    >
+      </div>
 
-      <button
-        onClick={startBot}
+      <div
         style={{
-          flex: 1,
-          padding: 15,
-          background: "#16a34a",
-          color: "white",
-          border: "none",
-          borderRadius: 10,
-          fontSize: 18
+          display: "flex",
+          gap: 10
         }}
       >
-        START
-      </button>
 
-      <button
-        onClick={stopBot}
+        <button
+          onClick={startBot}
+          style={{
+            flex: 1,
+            padding: 15,
+            background: "#16a34a",
+            color: "white",
+            border: "none",
+            borderRadius: 10,
+            fontSize: 18
+          }}
+        >
+          START
+        </button>
+
+        <button
+          onClick={stopBot}
+          style={{
+            flex: 1,
+            padding: 15,
+            background: "#dc2626",
+            color: "white",
+            border: "none",
+            borderRadius: 10,
+            fontSize: 18
+          }}
+        >
+          STOP
+        </button>
+
+      </div>
+
+      <div
         style={{
-          flex: 1,
-          padding: 15,
-          background: "#dc2626",
-          color: "white",
-          border: "none",
-          borderRadius: 10,
-          fontSize: 18
+          marginTop: 30
         }}
       >
-        STOP
-      </button>
+
+        <h2>
+          Trade History
+        </h2>
+
+        {
+          history.map(
+            (
+              trade,
+              index
+            ) => (
+
+              <div
+                key={index}
+                style={{
+                  background:
+                    "#111827",
+                  padding: 10,
+                  marginTop: 10,
+                  borderRadius: 10
+                }}
+              >
+
+                <p>
+                  {trade.time}
+                </p>
+
+                <p>
+                  Signal:
+                  {" "}
+                  {trade.signal}
+                </p>
+
+                <p
+                  style={{
+                    color:
+                      trade.result === "WIN"
+                        ? "#22c55e"
+                        : "#ef4444"
+                  }}
+                >
+                  {trade.result}
+                </p>
+
+              </div>
+            )
+          )
+        }
+
+      </div>
 
     </div>
-
-  </div>
-);
+  );
+}
