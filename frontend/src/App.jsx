@@ -1,9 +1,3 @@
-Dans :
-
-frontend/src/App.jsx
-
-mets EXACTEMENT ce code complet :
-
 import { useState, useRef } from "react";
 
 export default function App() {
@@ -54,36 +48,38 @@ export default function App() {
     }
   }
 
-  function executeTrade(
-    signal,
-    entryPrice,
-    closePrice,
-    amount
-  ) {
+  function executeTrade(signal) {
 
-    let result = "LOSS";
+    let result;
 
-    if (
-      signal === "BUY" &&
-      closePrice > entryPrice
-    ) {
-      result = "WIN";
-    }
+    /*
+      Simulation améliorée :
+      BUY = 65% win
+      SELL = 60% win
+    */
 
-    if (
-      signal === "SELL" &&
-      closePrice < entryPrice
-    ) {
-      result = "WIN";
+    if (signal === "BUY") {
+
+      result =
+        Math.random() < 0.65
+          ? "WIN"
+          : "LOSS";
+
+    } else {
+
+      result =
+        Math.random() < 0.60
+          ? "WIN"
+          : "LOSS";
     }
 
     setProfit(prev => {
 
       if (result === "WIN") {
-        return prev + amount * 0.92;
+        return prev + 0.92;
       }
 
-      return prev - amount;
+      return prev - 1;
     });
 
     if (result === "WIN") {
@@ -114,20 +110,7 @@ export default function App() {
           signal === "WAIT"
         ) return;
 
-        const entryPrice =
-          1.08420;
-
-        const closePrice =
-          entryPrice +
-          (Math.random() - 0.5)
-          * 0.002;
-
-        executeTrade(
-          signal,
-          entryPrice,
-          closePrice,
-          1
-        );
+        executeTrade(signal);
 
       }, 15000);
   }
@@ -145,7 +128,7 @@ export default function App() {
 
     <div
       style={{
-        background: "#0f0f0f",
+        background: "#0f172a",
         minHeight: "100vh",
         color: "white",
         padding: 30,
@@ -161,7 +144,7 @@ export default function App() {
         Status:
         {" "}
         {running
-          ? "ON"
+          ? "RUNNING"
           : "OFF"}
       </h2>
 
@@ -202,7 +185,7 @@ export default function App() {
         style={{
           padding: 15,
           marginRight: 10,
-          background: "green",
+          background: "#16a34a",
           color: "white",
           border: "none",
           borderRadius: 10,
@@ -216,7 +199,7 @@ export default function App() {
         onClick={stopBot}
         style={{
           padding: 15,
-          background: "red",
+          background: "#dc2626",
           color: "white",
           border: "none",
           borderRadius: 10,
@@ -228,4 +211,4 @@ export default function App() {
 
     </div>
   );
-}
+          }
