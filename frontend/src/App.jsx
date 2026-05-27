@@ -1,3 +1,9 @@
+Dans :
+
+frontend/src/App.jsx
+
+mets EXACTEMENT ce code complet :
+
 import { useState, useRef } from "react";
 
 export default function App() {
@@ -17,7 +23,36 @@ export default function App() {
   const [lastTrade, setLastTrade] =
     useState("NONE");
 
+  const [currentSignal, setCurrentSignal] =
+    useState("WAIT");
+
   const intervalRef = useRef(null);
+
+  async function getSignal() {
+
+    try {
+
+      const response =
+        await fetch(
+          "https://ai-trading-bot-production-b1fe.up.railway.app/signals/eurusd"
+        );
+
+      const data =
+        await response.json();
+
+      setCurrentSignal(
+        data.signal
+      );
+
+      return data.signal;
+
+    } catch (err) {
+
+      console.log(err);
+
+      return "WAIT";
+    }
+  }
 
   function executeTrade(
     signal,
@@ -52,8 +87,11 @@ export default function App() {
     });
 
     if (result === "WIN") {
+
       setWins(prev => prev + 1);
+
     } else {
+
       setLosses(prev => prev + 1);
     }
 
@@ -67,12 +105,14 @@ export default function App() {
     setRunning(true);
 
     intervalRef.current =
-      setInterval(() => {
+      setInterval(async () => {
 
         const signal =
-          Math.random() > 0.5
-            ? "BUY"
-            : "SELL";
+          await getSignal();
+
+        if (
+          signal === "WAIT"
+        ) return;
 
         const entryPrice =
           1.08420;
@@ -114,7 +154,7 @@ export default function App() {
     >
 
       <h1>
-        Trading Bot
+        OTC Trading Bot
       </h1>
 
       <h2>
@@ -123,6 +163,12 @@ export default function App() {
         {running
           ? "ON"
           : "OFF"}
+      </h2>
+
+      <h2>
+        Signal:
+        {" "}
+        {currentSignal}
       </h2>
 
       <h2>
@@ -159,7 +205,8 @@ export default function App() {
           background: "green",
           color: "white",
           border: "none",
-          borderRadius: 10
+          borderRadius: 10,
+          fontSize: 18
         }}
       >
         START
@@ -172,7 +219,8 @@ export default function App() {
           background: "red",
           color: "white",
           border: "none",
-          borderRadius: 10
+          borderRadius: 10,
+          fontSize: 18
         }}
       >
         STOP
